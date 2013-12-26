@@ -31,6 +31,12 @@ app.configure('production', function(){
 
 // Routes
 
+// Allow cross-origin access
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 app.get('/', function(req, res){
   res.render('index');
 });
@@ -42,7 +48,7 @@ app.get('/update-stream', function(req, res) {
   var messageCount = 0;
   var subscriber = redis.createClient();
 
-  subscriber.subscribe("updates");
+  subscriber.subscribe("contacts.create");
 
   // In case we encounter an error...print it out to the console
   subscriber.on("error", function(err) {
@@ -54,6 +60,7 @@ app.get('/update-stream', function(req, res) {
     messageCount++; // Increment our message count
 
     res.write('id: ' + messageCount + '\n');
+    res.write('event: ' + channel + '\n');
     res.write("data: " + message + '\n\n'); // Note the extra newline
   });
 
@@ -76,7 +83,7 @@ app.get('/update-stream', function(req, res) {
 });
 
 app.get('/fire-event/:event_name', function(req, res) {
-  publisherClient.publish( 'updates', ('"' + req.params.event_name + '" page visited') );
+  publisherClient.publish( 'contacts.create', ('"' + req.params.event_name + '" message published') );
   res.writeHead(200, {'Content-Type': 'text/html'});
   res.write('All clients have received "' + req.params.event_name + '"');
   res.end();

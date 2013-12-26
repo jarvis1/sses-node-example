@@ -11,7 +11,7 @@ html
     script(type='text/javascript')
       var source = new EventSource('/update-stream');
 
-      source.addEventListener('message', function(e) {
+      source.addEventListener('contacts.create', function(e) {
         console.log(e);
         $('ul').append('<li>' + e.data + ' (message id: ' + e.lastEventId + ')</li>');
       }, false);
